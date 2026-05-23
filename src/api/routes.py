@@ -4,11 +4,29 @@ from fastapi.templating import Jinja2Templates
 from src.core.database import db
 from src.graph.workflow import build_graph
 from datetime import datetime
+import re
 
 app = FastAPI(title="猫でもわかる技術解説エージェント")
 
 # Jinja2テンプレート設定（シンプルに）
 templates = Jinja2Templates(directory="src/api/templates")
+
+def format_content(content: str) -> str:
+    """解説文を見やすく整形"""
+    if not content:
+        return ""
+    
+    # **太字** を <strong> に変換
+    content = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', content)
+    
+    # 改行を <br> に変換（連続した改行は <p> に）
+    content = content.replace('\n\n', '</p><p>')
+    content = content.replace('\n', '<br>')
+    
+    # 見出し風の行を強調
+    content = re.sub(r'^(【.+?】)', r'<strong>\1</strong>', content, flags=re.MULTILINE)
+    
+    return f"<p>{content}</p>" if not content.startswith('<p>') else content
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -20,7 +38,11 @@ async def index(request: Request):
         ))
         
         # 確実にPythonのdictに変換
-        explanations = [dict(row) for row in rows]
+        explanations = []
+        for row in rows:
+            exp_dict = dict(row)
+            exp_dict["formatted_content"] = format_content(exp_dict.get("content", ""))
+            explanations.append(exp_dict)
 
 
         return templates.TemplateResponse(
