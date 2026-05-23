@@ -9,16 +9,9 @@ from src.tools.storage import saver_node
 async def fetch_node(state: AgentState):
     topics = await fetch_hacker_news_top(6)
     return {
-        "raw_topics": topics, 
+        "raw_topics": topics,
         "date": datetime.now().strftime("%Y-%m-%d")
     }
-
-def should_revise(state: AgentState) -> str:
-    if not state.get("critiques"):
-        return "saver"
-    last_critique = state["critiques"][-1]
-    score = last_critique.get("score", 0)
-    return "reviser" if score <= 3 else "saver"
 
 def build_graph():
     workflow = StateGraph(AgentState)
@@ -33,26 +26,27 @@ def build_graph():
 
     workflow.add_edge(START, "fetch")
     workflow.add_edge("fetch", "supervisor")
-    
-    # Supervisorによる動的ルーティング
+
+    # Supervisorによる動的ルーティング（これが核心）
     workflow.add_conditional_edges(
         "supervisor",
-        lambda state: state["messages"][-1]["content"] if state.get("messages") else "explain",
+        lambda s: s.get("next", "explain"),
         {
+            "research_more": "fetch",
             "explain": "explain",
             "reflect": "reflect",
+            "revise": "reviser",
             "saver": "saver",
-            "recommender": "recommender"
+            "recommender": "recommender",
+            "end": END,
         }
     )
+
+    # 各ノード実行後は必ずSupervisorに戻す（中央集権化）
+    workflow.add_edge("explain", "supervisor")
+    workflow.add_edge("reflect", "supervisor")
+    workflow.add_edge("reviser", "supervisor")
     
-    workflow.add_edge("explain", "reflect")
-    workflow.add_conditional_edges(
-        "reflect",
-        should_revise,
-        {"reviser": "reviser", "saver": "saver"}
-    )
-    workflow.add_edge("reviser", "reflect")
     workflow.add_edge("saver", "recommender")
     workflow.add_edge("recommender", END)
 

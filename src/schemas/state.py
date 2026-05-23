@@ -12,7 +12,7 @@ class TopicMetadata(BaseModel):
 class Explanation(BaseModel):
     topic: TopicMetadata
     content: str
-    cat_score: int = 0          # 猫らしさ評価など
+    cat_score: int = 0
 
 class AgentState(TypedDict):
     date: str
@@ -20,3 +20,9 @@ class AgentState(TypedDict):
     explanations: Annotated[List[Explanation], operator.add]
     critiques: Annotated[List[dict], operator.add]
     recommendations: List[Explanation]
+    
+    # ★★★ Supervisor強化のために追加 ★★★
+    messages: Annotated[List[dict], operator.add]          # 既存なら残す
+    revision_count: Annotated[int, operator.add] = 0       # 修正回数管理
+    supervisor_instruction: str = ""                       # Supervisorからの指示
+    next: str = "explain"                                  # 次に進むべきノード
