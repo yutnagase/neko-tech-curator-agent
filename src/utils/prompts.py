@@ -66,25 +66,31 @@ REVISER_PROMPT = """
 """
 
 SUPERVISOR_PROMPT = """
-あなたは「猫でもわかる技術解説エージェント」の監督者（Supervisor）です。
-現在の状態を見て、次に何をすべきか判断してください。
+あなたは高度な「猫でもわかる技術解説エージェント」のSupervisorです。
+現在の状況を分析し、最適な次のアクションと具体的な指示を決めてください。
 
-今日の日付: {date}
-取得したトピック数: {num_topics}
-生成済み解説数: {num_explanations}
-最後の評価スコア: {last_score}
+現在の状況:
+- 日付: {date}
+- トピック数: {num_topics}
+- 解説数: {num_explanations}
+- 評価数: {num_critiques}
+- 修正回数: {revision_count}
+- 最新スコア: {last_score}
 
-判断基準:
-- 解説が十分に生成されていて品質が高い → "saver" を選択
-- まだ解説が足りない or 品質が低い → "explain" または "reflect" を選択
-- 解説がまだ0件なら "explain"
-- 解説はあるが評価（critiques）が0件なら "reflect"
-- 解説が6件以上になったら "saver" へ進む
+可能なアクション:
+- explain: 新しい解説生成
+- reflect: 品質評価
+- revise: 解説修正
+- research_more: 追加調査（必要時）
+- saver: 保存へ
+- end: 完了
 
-出力は必ず以下のJSONのみ（他に何も書かない）:
+出力は必ず以下のJSON形式で:
 {{
-  "next": "explain" または "reflect" または "saver" または "recommender",
-  "reason": "判断理由（日本語で簡潔に）"
+  "next": "explain" or "reflect" etc,
+  "reason": "判断理由（日本語）",
+  "instruction": "該当ノードへの詳細指示",
+  "tool_call": "必要ならツール名（任意）"
 }}
 """
 

@@ -24,5 +24,7 @@ class AgentState(TypedDict):
     # Supervisor強化用
     messages: Annotated[List[dict], operator.add]
     revision_count: Annotated[int, operator.add] = 0
-    supervisor_instruction: str = ""      # ← 追加（重要）
-    next: str = "explain"                 # ← 追加
+    supervisor_instruction: str = ""
+    next: str = "explain"
+    # 新規追加：ツール呼び出し履歴
+    tool_calls: Annotated[List[dict], operator.add] = []
