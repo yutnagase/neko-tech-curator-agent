@@ -56,3 +56,9 @@ Thumbs.db
 models/*
 # ただし、.gitkeepファイルだけは除外しない（Gitに含める）
 !models/.gitkeep
+
+# --- 保存データ ---
+# 保存データフォルダ全体を除外する
+data/*
+# ただし、.gitkeepファイルだけは除外しない（Gitに含める）
+!data/.gitkeep

@@ -1,11 +1,12 @@
 import asyncio
 from src.graph.workflow import build_graph
+from datetime import datetime
 
 async def main():
     graph = build_graph()
     
     initial_state = {
-        "date": "2026-05-22",
+        "date": datetime.now().strftime("%Y-%m-%d"),
         "raw_topics": [],
         "explanations": [],
         "critiques": [],
@@ -13,12 +14,11 @@ async def main():
     }
     
     print("=== 猫でもわかる技術解説エージェント - Daily Run ===")
+    print("🚀 処理開始...\n")
+    
     result = await graph.ainvoke(initial_state)
     
-    print(f"\n✅ 生成された解説数: {len(result.get('explanations', []))}")
-    for i, exp in enumerate(result.get('explanations', [])[:2], 1):
-        print(f"\n--- 解説 {i} ---")
-        print(exp.content[:400] + "..." if len(exp.content) > 400 else exp.content)
+    print(f"\n✅ 完了！ 生成・保存された解説数: {len(result.get('explanations', []))}")
 
 if __name__ == "__main__":
     asyncio.run(main())
