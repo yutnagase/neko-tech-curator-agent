@@ -1,7 +1,13 @@
 from langchain_core.messages import HumanMessage
 from src.core.llm import get_llm
-from src.utils.prompts import DAILY_EXPLAINER_PROMPT, REFLECTION_PROMPT, REVISER_PROMPT
+from src.utils.prompts import (
+    DAILY_EXPLAINER_PROMPT, 
+    REFLECTION_PROMPT, 
+    REVISER_PROMPT,
+    RECOMMENDER_PROMPT  
+)
 from src.schemas.state import AgentState, Explanation
+
 import json
 
 async def explainer_node(state: AgentState) -> AgentState:
@@ -87,3 +93,19 @@ def should_revise(state: AgentState) -> str:
     if score <= 3:
         return "reviser"
     return "saver"
+
+async def recommender_node(state: AgentState) -> AgentState:
+    llm = get_llm(temperature=0.7)
+    recommendations = []
+    
+    # 簡易版（将来的にユーザー履歴を反映）
+    prompt = RECOMMENDER_PROMPT
+    response = await llm.ainvoke([HumanMessage(content=prompt)])
+    
+    recommendations.append({
+        "title": "今日のおすすめネタ",
+        "content": response.content.strip()
+    })
+    
+    print("📌 Recommender完了")
+    return {"recommendations": recommendations}
