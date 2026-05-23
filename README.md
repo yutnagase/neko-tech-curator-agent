@@ -41,8 +41,14 @@ pip install -r requirements.txt
 # 4. モデル配置（modelsフォルダにGGUFモデルを置く）
 mkdir -p models data
 
-# 5. 初回実行（解説生成）
+# 5. ".env"ファイルを作成
+cp .env.example .env
+
+# 5.1. 自分の環境に合わせてモデルパスを修正
+# nano .env
+
+# 6. 初回実行（解説生成）
 python daily_run.py
 
-# 6. Webサーバー起動
+# 7. Webサーバー起動
 python main.py

@@ -62,3 +62,6 @@ models/*
 data/*
 # ただし、.gitkeepファイルだけは除外しない（Gitに含める）
 !data/.gitkeep
+
+# --- envファイル ---
+.env
