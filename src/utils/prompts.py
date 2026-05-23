@@ -77,11 +77,14 @@ SUPERVISOR_PROMPT = """
 判断基準:
 - 解説が十分に生成されていて品質が高い → "saver" を選択
 - まだ解説が足りない or 品質が低い → "explain" または "reflect" を選択
+- 解説がまだ0件なら "explain"
+- 解説はあるが評価（critiques）が0件なら "reflect"
+- 解説が6件以上になったら "saver" へ進む
 
-出力は必ず以下のJSON形式で：
+出力は必ず以下のJSONのみ（他に何も書かない）:
 {{
   "next": "explain" または "reflect" または "saver" または "recommender",
-  "reason": "判断理由"
+  "reason": "判断理由（日本語で簡潔に）"
 }}
 """
 
@@ -119,6 +122,12 @@ SUPERVISOR_SYSTEM_PROMPT = """
 - saver: データベース保存へ進む
 - recommender: おすすめ生成へ
 - end: すべての処理を終了
+
+【重要な判断ルール】
+- 解説が1つも生成されていない場合（explanations_count == 0）→ 優先的に "explain" を選択
+- トピック取得ができていない場合 → "research_more"
+- 解説はあるが品質が低い場合 → "reflect" → "revise"
+- 十分な解説ができたら "saver" へ進む
 
 **重要な制約**: 修正は最大2回まで。無限ループを避けること。
 
