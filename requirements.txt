@@ -1,0 +1,28 @@
+# Core
+langgraph==0.2.60
+langchain==0.3.14
+langchain-community==0.3.10
+langchain-core==0.3.28
+
+# LLM
+llama-cpp-python==0.3.5
+
+# Web
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+jinja2==3.1.4
+python-multipart==0.0.20
+
+# Database
+lancedb==0.17.0
+sqlite-utils==6.9.0
+
+# Utils
+pydantic==2.10.3
+pydantic-settings==2.7.0
+httpx==0.28.1
+tqdm==4.67.1
+python-dotenv==1.0.1
+
+# Optional (後で追加予定)
+# apscheduler==3.10.4
