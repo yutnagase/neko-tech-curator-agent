@@ -4,16 +4,17 @@ from src.utils.prompts import SUPERVISOR_PROMPT
 import json
 
 async def supervisor_node(state):
-    llm = get_llm(temperature=0.1)  # 判断は低温度
+    llm = get_llm(temperature=0.1)
     
     num_topics = len(state.get("raw_topics", []))
     num_explanations = len(state.get("explanations", []))
     num_critiques = len(state.get("critiques", []))
     
     prompt = SUPERVISOR_PROMPT.format(
-        date=state.get("date"),
+        date=state.get("date", "不明"),
         num_topics=num_topics,
         num_explanations=num_explanations,
+        num_critiques=num_critiques,
         last_score=state["critiques"][-1].get("score", 0) if state.get("critiques") else 0
     )
     
@@ -23,23 +24,28 @@ async def supervisor_node(state):
         decision = json.loads(response.content.strip())
         next_step = decision.get("next", "reflect")
         reason = decision.get("reason", "")
+        instruction = decision.get("instruction", "")   # ← 新規追加
     except Exception as e:
         print(f"Supervisor JSONエラー: {e}")
         next_step = "reflect" if num_explanations > 0 else "explain"
         reason = "パース失敗"
+        instruction = ""
 
-    # 強制ルール（無限ループ防止）
+    # 強制ルール
     if num_explanations == 0 and num_topics > 0:
         next_step = "explain"
-    elif num_explanations > 0 and num_critiques == 0:
+        instruction = "新しいトピックについて、猫でもわかりやすい解説を生成せよ"
+    elif num_explanations >= 6 and num_critiques == 0:
         next_step = "reflect"
-    elif num_explanations >= 6:
+        instruction = "生成された解説の品質を厳しく評価せよ。特に猫語の可愛さと正確性を重視"
+    elif num_explanations >= 8:
         next_step = "saver"
 
     print(f"🤖 Supervisor決定 → {next_step} | 理由: {reason[:70]}... | "
-          f"解説数: {num_explanations}, 評価数: {num_critiques}")
+          f"解説数:{num_explanations} 評価数:{num_critiques}")
 
     return {
         "messages": [{"role": "supervisor", "content": next_step, "reason": reason}],
-        "next": next_step   # ← これを追加
+        "next": next_step,
+        "supervisor_instruction": instruction   # ← 各ノードに指示を渡す
     }

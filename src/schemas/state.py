@@ -21,8 +21,8 @@ class AgentState(TypedDict):
     critiques: Annotated[List[dict], operator.add]
     recommendations: List[Explanation]
     
-    # ★★★ Supervisor強化のために追加 ★★★
-    messages: Annotated[List[dict], operator.add]          # 既存なら残す
-    revision_count: Annotated[int, operator.add] = 0       # 修正回数管理
-    supervisor_instruction: str = ""                       # Supervisorからの指示
-    next: str = "explain"                                  # 次に進むべきノード
+    # Supervisor強化用
+    messages: Annotated[List[dict], operator.add]
+    revision_count: Annotated[int, operator.add] = 0
+    supervisor_instruction: str = ""      # ← 追加（重要）
+    next: str = "explain"                 # ← 追加

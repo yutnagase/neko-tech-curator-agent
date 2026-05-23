@@ -11,6 +11,10 @@ from src.schemas.state import AgentState, Explanation
 import json
 
 async def explainer_node(state: AgentState) -> AgentState:
+    """解説生成ノード - Supervisorの指示を反映"""
+    instruction = state.get("supervisor_instruction", "")
+    extra_instruction = f"\n\n【Supervisor特別指示】{instruction}" if instruction else ""
+    
     llm = get_llm(temperature=0.7)
     new_explanations = []
     
@@ -19,7 +23,8 @@ async def explainer_node(state: AgentState) -> AgentState:
             title=topic.title,
             summary=topic.summary or "詳細はリンクを参照してください。",
             url=topic.url
-        )
+        ) + extra_instruction   # ← Supervisor指示を追加
+        
         response = await llm.ainvoke([HumanMessage(content=prompt_text)])
         
         new_explanations.append(Explanation(
@@ -27,15 +32,21 @@ async def explainer_node(state: AgentState) -> AgentState:
             content=response.content.strip()
         ))
     
+    print(f"✅ Explainer完了: {len(new_explanations)}件生成 | Supervisor指示: {instruction[:50] if instruction else 'なし'}")
     return {"explanations": new_explanations}
 
 
 async def reflector_node(state: AgentState) -> AgentState:
+    """品質評価ノード - Supervisorの指示を反映"""
+    instruction = state.get("supervisor_instruction", "")
+    extra_instruction = f"\n\n【Supervisor特別指示】{instruction}" if instruction else ""
+    
     llm = get_llm(temperature=0.0)
     critiques = []
     
     for exp in state.get("explanations", []):
-        prompt = REFLECTION_PROMPT.format(content=exp.content)
+        prompt = REFLECTION_PROMPT.format(content=exp.content) + extra_instruction
+        
         response = await llm.ainvoke([HumanMessage(content=prompt)])
         
         try:
@@ -49,25 +60,29 @@ async def reflector_node(state: AgentState) -> AgentState:
             }
         critiques.append(critique)
     
+    print(f"✅ Reflector完了: {len(critiques)}件評価 | Supervisor指示: {instruction[:50] if instruction else 'なし'}")
     return {"critiques": critiques}
 
 
 async def reviser_node(state: AgentState) -> AgentState:
+    """修正ノード - Supervisorの指示を反映"""
+    instruction = state.get("supervisor_instruction", "")
+    extra_instruction = f"\n\n【Supervisor特別指示】{instruction}" if instruction else ""
+    
     llm = get_llm(temperature=0.65)
     revised_explanations = []
     
-    # 最後の解説と最後のcritiqueを対応させる（簡易版）
     explanations = state.get("explanations", [])
     critiques = state.get("critiques", [])
     
     for i, exp in enumerate(explanations):
         critique = critiques[i] if i < len(critiques) else {}
-        suggestion = critique.get("suggestion", "よりわかりやすくしてください。")
+        suggestion = critique.get("suggestion", "よりわかりやすく、猫らしくしてください。")
         
         prompt = REVISER_PROMPT.format(
             content=exp.content,
             suggestion=suggestion
-        )
+        ) + extra_instruction
         
         response = await llm.ainvoke([HumanMessage(content=prompt)])
         
@@ -76,7 +91,7 @@ async def reviser_node(state: AgentState) -> AgentState:
             content=response.content.strip()
         ))
     
-    # 修正版で上書き
+    print(f"✅ Reviser完了: {len(revised_explanations)}件修正")
     return {"explanations": revised_explanations}
 
 
@@ -87,19 +102,24 @@ def should_revise(state: AgentState) -> str:
     
     # 最後のcritiqueをチェック
     last_critique = state["critiques"][-1]
-    score = last_critique.get("score", 0)
+    score = last_critique.get("score", 0) if isinstance(last_critique, dict) else 0
     
-    # 3点以下なら修正ループへ（最大2回程度にしたい場合は後で制限追加）
+    # スコアが低い場合は修正（閾値は調整可能）
     if score <= 3:
         return "reviser"
     return "saver"
 
+
 async def recommender_node(state: AgentState) -> AgentState:
+    """おすすめ生成ノード"""
+    instruction = state.get("supervisor_instruction", "")
+    extra_instruction = f"\n\n【Supervisor特別指示】{instruction}" if instruction else ""
+    
     llm = get_llm(temperature=0.7)
     recommendations = []
     
-    # 簡易版（将来的にユーザー履歴を反映）
-    prompt = RECOMMENDER_PROMPT
+    prompt = RECOMMENDER_PROMPT + extra_instruction
+    
     response = await llm.ainvoke([HumanMessage(content=prompt)])
     
     recommendations.append({
