@@ -1,0 +1,55 @@
+<svg width="820" height="860" viewBox="0 0 820 740" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      text { font-family: system-ui, -apple-system, sans-serif; }
+      .box { fill: #f8fafc; stroke: #2563eb; stroke-width: 3.5; rx: 14; ry: 14; }
+      .arrow { stroke: #475569; stroke-width: 3.5; marker-end: url(#arrowhead); }
+      .layer { font-size: 17px; font-weight: 700; fill: #1e40af; }
+      .label { font-size: 14.5px; fill: #334155; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <!-- 1. Hacker News -->
+  <rect x="290" y="40" width="260" height="78" class="box"/>
+  <text x="420" y="68" text-anchor="middle" class="layer">[外部] Hacker News API</text>
+  <text x="420" y="88" text-anchor="middle" class="label">(メタデータのみ取得)</text>
+
+  <!-- Arrow 1 -->
+  <line x1="420" y1="123" x2="420" y2="175" class="arrow"/>
+
+  <!-- 2. ツール層 -->
+  <rect x="290" y="190" width="260" height="70" class="box"/>
+  <text x="420" y="225" text-anchor="middle" class="layer">[ツール層] fetchers.py</text>
+
+  <!-- Arrow 2 -->
+  <line x1="420" y1="265" x2="420" y2="310" class="arrow"/>
+
+  <!-- 3. Agent層 -->
+  <rect x="190" y="325" width="460" height="185" class="box"/>
+  <text x="420" y="355" text-anchor="middle" class="layer">[Agent層] LangGraph Workflow</text>
+  
+  <text x="230" y="390" class="label">├── Supervisor Node（ルーティング決定）</text>
+  <text x="230" y="415" class="label">├── Explainer Node（解説生成）</text>
+  <text x="230" y="440" class="label">├── Reflector Node（自己批評）</text>
+  <text x="230" y="465" class="label">├── Reviser Node（修正）</text>
+  <text x="230" y="490" class="label">└── Saver Node（DB保存）</text>
+
+  <!-- Arrow 3 -->
+  <line x1="420" y1="515" x2="420" y2="560" class="arrow"/>
+
+  <!-- 4. 永続化層 -->
+  <rect x="290" y="575" width="260" height="72" class="box"/>
+  <text x="420" y="605" text-anchor="middle" class="layer">[永続化層] SQLite + LanceDB</text>
+
+  <!-- Arrow 4 -->
+  <line x1="420" y1="652" x2="420" y2="695" class="arrow"/>
+
+  <!-- 5. Web層 -->
+  <rect x="290" y="710" width="260" height="78" class="box"/>
+  <text x="420" y="738" text-anchor="middle" class="layer">[Web層] FastAPI + HTMX</text>
+  <text x="420" y="758" text-anchor="middle" class="label">（閲覧用）</text>
+
+</svg>
