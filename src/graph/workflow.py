@@ -54,8 +54,10 @@ def _should_revise(state: AgentState) -> Literal["reviser", "saver"]:
     # 最新の自己批評のスコアを取得（スコアがない場合は0とみなす）
     latest_score = critiques[-1].get("score", 0) if isinstance(critiques[-1], dict) else 0
     
+    print(f"品質判定: 最新の自己批評スコア = {latest_score} | 判定結果 = {'reviser' if latest_score <= 70 else 'saver'}")  # スコアと判定結果をログに出力
+
     # スコアが低い場合は修正
-    if latest_score < 70:   # 閾値は調整可能
+    if latest_score < 3:   # scoreは1-5の範囲、閾値は調整可能
         return "reviser"
     else:
         return "saver"

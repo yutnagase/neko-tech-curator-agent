@@ -36,6 +36,8 @@ async def supervisor_node(state):
         last_score=state["critiques"][-1].get("score", 0) if state.get("critiques") else 0
     )
     
+    print(f"Supervisor: 状況分析 → トピック数: {num_topics}, 解説数: {num_explanations}, 評価数: {num_critiques}, 修正回数: {revision_count}, 最新スコア: {state['critiques'][-1].get('score', 0) if state.get('critiques') else 0} ")  # 状況をログに出力
+      
     print(f"Supervisorプロンプト:\n{prompt[:500]}...")  # プロンプトの一部をログに出力
 
     print(f"Supervisor判断中... | 状況: トピック{num_topics} 解説{num_explanations} 評価{num_critiques} 修正{revision_count}")
