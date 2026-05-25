@@ -3,6 +3,7 @@ from pathlib import Path
 import sys
 
 class Settings(BaseSettings):
+
     model_config = SettingsConfigDict(
         env_file=".env", 
         env_file_encoding="utf-8",
@@ -33,7 +34,7 @@ class Settings(BaseSettings):
             print("   .envファイルで正しいLLM_MODEL_PATHを設定してください。")
             sys.exit(1)
 
-        print(f"✅ モデルロード準備完了: {model_path.name}")
+        print(f"モデルロード準備完了: {model_path.name}")
 
 
 # グローバルインスタンス
