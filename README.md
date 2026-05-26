@@ -12,6 +12,9 @@ WSL2 + Ubuntu環境で、16GBメモリでも動作する軽量設計にしてい
 - ローカル完結: すべてローカルLLM（GGUF）で動作
 - Web UI: FastAPI + HTMX + Tailwind
 
+## 画面イメージ
+![image1](docs/images/image1.png)
+
 ## 技術スタック（トレンド重視）
 
 - LLM Runtime: llama.cpp (GGUF)
